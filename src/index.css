@@ -9,7 +9,24 @@ html {
   flex-direction: column;
 }
 
+:root {
+	--background-color: #ffffff; /* Global background */
+	--font-color: #000000; /* Global font color */
+	--neutral-background: #ffffff; /* Neutral background for components */
+	--neutral-border: #ffffff; /* Neutral border color */
+}
+
+.dark {
+--background-color: #000000; /* Global background for dark mode */
+--font-color: #ffffff; /* Global font color for dark mode */
+--neutral-background: #000000; /* Neutral background for components in dark mode */
+--neutral-border: #000000; /* Neutral border color for dark mode */
+}
+
 body {
+	background-color: var(--background-color);
+	color: var(--font-color);
+	transition: background-color 0.3s, color 0.3s;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -17,4 +34,8 @@ body {
 
 #root {
   flex-grow: 1;
+}
+
+.bg-neutral-background {
+	background-color: var(--neutral-background);
 }

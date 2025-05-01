@@ -1,41 +1,140 @@
-import subframeLogo from "./assets/subframe-logo.svg?url"
+"use client";
 
-export default function App() {
-  return (
-    <main className="flex h-full min-h-screen flex-col items-center p-8">
-      <img src={subframeLogo} width={112} height={20} alt="Subframe logo" />
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
+import Home from "./pages/Home";
+import Collection from "./pages/Collection";
+import Create from "./pages/Create";
+import Landing from "./pages/Landing";
+import { Tooltip } from "@/ui/components/Tooltip";
+import * as SubframeCore from "@subframe/core";
+import { Button } from "@/ui/components/Button";
+import { FeatherMoon, FeatherWallet } from "@subframe/core";
+import { useState } from "react";
 
-      <div className="flex flex-col gap-1 mt-20">
-        <div className="relative mx-auto max-w-4xl gap-12 px-6 lg:px-8">
-          <h1 className="text-4xl text-center font-semibold tracking-tight sm:text-6xl sm:leading-[4.25rem]">
-            Welcome to your Subframe Vite Starter Kit
-          </h1>
-        </div>
-        <div className="relative mx-auto max-w-2xl gap-12 px-6 lg:px-8">
-          <div className="mt-6 text-lg text-base sm:text-lg text-center max-w-">
-            Use this project to kickstart Subframe. It includes configuration files, dependencies you will need, and a
-            clean slate for getting started.
-          </div>
-        </div>
-      </div>
-
-      <div className="flex gap-2 max-w-md mt-12 gap-4">
-        <a
-          className="rounded-lg bg-slate-950 text-white px-4 py-2 text-center"
-          href="https://app.subframe.com/library?component=installation"
-          target="_blank"
-        >
-          Install Subframe
-        </a>
-
-        <a
-          className="rounded-lg text-slate-950 px-4 py-2 text-center border border-slate-300"
-          href="https://www.loom.com/embed/6b6a31569e1540d7a69a18b8620bf51a"
-          target="_blank"
-        >
-          See how it works
-        </a>
-      </div>
-    </main>
-  )
+declare global {
+  interface Window {
+    ethereum?: any;
+    web3?: any;
+  }
 }
+
+function AuctionHubApp() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isFading, setIsFading] = useState(false); // Track animation state
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
+    document.documentElement.classList.toggle("dark", !isDarkMode);
+  };
+
+  async function connect() {
+    if (walletAddress) {
+      // Trigger fade-out before disconnecting
+      setIsFading(true);
+      setTimeout(() => {
+        setWalletAddress(null);
+        console.log("Wallet disconnected");
+        setIsFading(false);
+      }, 300); // Match the transition duration
+    } else if (window.ethereum) {
+      try {
+        // Request wallet connection
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        window.web3 = new Web3(window.ethereum);
+
+        // Get the connected wallet address
+        const accounts = await window.web3.eth.getAccounts();
+        const newWalletAddress = accounts[0];
+
+        // Trigger fade-out before connecting
+        setIsFading(true);
+        setTimeout(() => {
+          setWalletAddress(newWalletAddress);
+          console.log(`Wallet connected: ${newWalletAddress}`);
+          setIsFading(false);
+        }, 300); // Match the transition duration
+      } catch (error) {
+        console.error("Error connecting wallet:", error);
+      }
+    } else {
+      console.log("No wallet detected");
+    }
+  }
+
+  // CSS styles for fade animation
+  const fadeStyles = {
+    transition: "opacity 300ms ease-in-out",
+    opacity: isFading ? 0 : 1,
+  };
+
+  return (
+    <Router>
+      {/* Animated Container */}
+      <div style={{ position: "relative", minHeight: "100vh" }}>
+		<div className="flex w-full items-center justify-end border-b-2 border-solid border-neutral-border">
+			<div className="flex items-center gap-2 m-3">
+			<SubframeCore.Tooltip.Provider>
+				<SubframeCore.Tooltip.Root>
+				<SubframeCore.Tooltip.Trigger asChild={true}>
+					<Button
+					variant="neutral-secondary"
+					icon={<FeatherMoon />}
+					onClick={toggleDarkMode}
+					/>
+				</SubframeCore.Tooltip.Trigger>
+				<SubframeCore.Tooltip.Portal>
+					<SubframeCore.Tooltip.Content
+					side="bottom"
+					align="center"
+					sideOffset={4}
+					asChild={true}
+					>
+					<Tooltip>Toggle Dark Mode</Tooltip>
+					</SubframeCore.Tooltip.Content>
+				</SubframeCore.Tooltip.Portal>
+				</SubframeCore.Tooltip.Root>
+			</SubframeCore.Tooltip.Provider>
+			<Button
+				icon={<FeatherWallet />}
+				onClick={connect}
+			>
+				{walletAddress
+				? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+				: "Connect Wallet"}
+			</Button>
+			</div>
+		</div>
+        {walletAddress ? (
+          <div style={fadeStyles}>
+            <DefaultPageLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/collections" element={<Collection />} />
+                <Route path="/create-auction" element={<Create />} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </DefaultPageLayout>
+          </div>
+        ) : (
+          <div style={fadeStyles}>
+            <Routes>
+              <Route
+                path="*"
+                element={
+                  <Landing
+                    walletAddress={walletAddress}
+                    connect={connect}
+                  />
+                }
+              />
+            </Routes>
+          </div>
+        )}
+      </div>
+    </Router>
+  );
+}
+
+export default AuctionHubApp;
