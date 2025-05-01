@@ -11,6 +11,8 @@ import * as SubframeCore from "@subframe/core";
 import { Button } from "@/ui/components/Button";
 import { FeatherMoon, FeatherWallet } from "@subframe/core";
 import { useState } from "react";
+import Web3 from "web3";
+
 
 declare global {
   interface Window {
@@ -123,10 +125,7 @@ function AuctionHubApp() {
               <Route
                 path="*"
                 element={
-                  <Landing
-                    walletAddress={walletAddress}
-                    connect={connect}
-                  />
+                  <Landing />
                 }
               />
             </Routes>

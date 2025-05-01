@@ -1,13 +1,14 @@
 "use client";
 
-import React from "react";
+
 import { FeatherWallet } from "@subframe/core";
 import { FeatherShield } from "@subframe/core";
 import { FeatherUsers } from "@subframe/core";
 import { Avatar } from "@/ui/components/Avatar";
-import { Button } from "@/ui/components/Button";
 
-function Landing() {
+
+
+function Landing(){
   return (
     <div className="flex w-full flex-col items-start">
 		<div className="flex min-h-[576px] w-full flex-col items-center justify-center gap-12 overflow-hidden px-4 py-32 relative">
@@ -112,23 +113,6 @@ function Landing() {
 				</div>
 			</div>
 			</div>
-		</div>
-		<div className="flex w-full flex-col items-center justify-center gap-12 bg-neutral-900 px-4 py-24">
-			<div className="flex w-full max-w-[768px] flex-col items-center justify-center gap-4">
-			<span className="w-full font-['Inter'] text-[48px] font-[700] leading-[48px] text-white text-center -tracking-[0.035em]">
-				Ready to Start Trading?
-			</span>
-			<span className="w-full whitespace-pre-wrap font-['Inter'] text-[24px] font-[500] leading-[32px] text-neutral-500 text-center -tracking-[0.025em]">
-				{"Connect your wallet to access exclusive NFT auctions"}
-			</span>
-			</div>
-			<Button
-			variant="neutral-secondary"
-			size="large"
-			onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-			>
-			Connect Wallet
-			</Button>
 		</div>
     </div>
   );

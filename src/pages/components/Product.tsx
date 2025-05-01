@@ -12,7 +12,7 @@ import { FeatherPalette } from "@subframe/core";
 import { FeatherCode } from "@subframe/core";
 import { FeatherCamera } from "@subframe/core";
 
-const products = Array.from({ length: 20 }, (_, index) => ({
+const products = Array.from({ length: 20 }, () => ({
 	image: "https://images.unsplash.com/photo-1634986666676-ec8fd927c23d",
 	timeToClose: "15h : 32m : 17s",
 	name: "Cosmic Harmony #12",

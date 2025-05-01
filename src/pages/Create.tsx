@@ -9,7 +9,7 @@ import { Select } from "@/ui/components/Select";
 import { FeatherDollarSign } from "@subframe/core";
 
 function Create() {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // State for the uploaded file
+  const [_, setUploadedFile] = useState<File | null>(null); // State for the uploaded file
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); // State for the preview URL
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -82,7 +82,7 @@ function Create() {
             >
               Cancel
             </Button>
-            <Button onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}>
+            <Button onClick={() => {handleClearFields}}>
               Create Auction
             </Button>
           </div>

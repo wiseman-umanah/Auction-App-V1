@@ -1,12 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DialogLayout } from "@/ui/layouts/DialogLayout";
 import { IconButton } from "@/ui/components/IconButton";
-import { FeatherX } from "@subframe/core";
+import { FeatherX, FeatherDollarSign } from "@subframe/core";
 import { Avatar } from "@/ui/components/Avatar";
 import { TextField } from "@/ui/components/TextField";
-import { FeatherDollarSign } from "@subframe/core";
 import { Alert } from "@/ui/components/Alert";
 import { Button } from "@/ui/components/Button";
 
@@ -25,7 +24,39 @@ interface PlaceBidProps {
 }
 
 function PlaceBid({ open, onClose, bid, mode }: PlaceBidProps) {
+  const [bidAmount, setBidAmount] = useState<string>(""); // State for the bid amount
+  const [alertVisible, setAlertVisible] = useState<boolean>(true); // State for alert visibility
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
+
   if (!bid) return null; // Ensure bid details are available
+
+  const handleBidChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    // Allow only numbers and a single decimal point
+    if (/^\d*\.?\d*$/.test(value)) {
+      setBidAmount(value); // Update bid amount state if valid
+      setErrorMessage(null); // Clear error message when input is valid
+    }
+  };
+
+  const handleConfirmBid = () => {
+    const currentBid = parseFloat(bid.currentBid.replace(" ETH", ""));
+    const enteredBid = parseFloat(bidAmount);
+
+    if (isNaN(enteredBid) || enteredBid < currentBid) {
+      setErrorMessage(`Your bid must be at least ${currentBid} ETH.`);
+      return;
+    }
+
+    alert(`Bid of ${enteredBid} ETH placed successfully!`);
+    setBidAmount(""); // Reset bid amount
+    onClose(); // Close the dialog
+  };
+
+  const handleDismissAlert = () => {
+    setAlertVisible(false); // Hide the alert
+  };
 
   return (
     <DialogLayout open={open} onOpenChange={onClose} className="z-50">
@@ -67,7 +98,7 @@ function PlaceBid({ open, onClose, bid, mode }: PlaceBidProps) {
                   {bid.currentBid}
                 </span>
               </div>
-			  <span className="text-caption-bold font-caption-bold text-default-fontbg-default-background rounded-md px-2 py-1">
+              <span className="text-caption-bold font-caption-bold text-default-font bg-default-background rounded-md px-2 py-1">
                 {bid.timeToClose}
               </span>
             </div>
@@ -83,22 +114,29 @@ function PlaceBid({ open, onClose, bid, mode }: PlaceBidProps) {
                 >
                   <TextField.Input
                     placeholder="Enter amount in ETH"
-                    value=""
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}
+                    value={bidAmount}
+                    onChange={handleBidChange} // Handle input change
                   />
                 </TextField>
-                <Alert
-                  variant="warning"
-                  title="A 2.5% service fee will be added to your bid"
-                  description=""
-                  actions={
-                    <IconButton
-                      size="medium"
-                      icon={<FeatherX />}
-                      onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
-                    />
-                  }
-                />
+                {errorMessage && (
+                  <span className="text-body font-body text-red-500">
+                    {errorMessage}
+                  </span>
+                )}
+                {alertVisible && (
+                  <Alert
+                    variant="warning"
+                    title="A 2.5% service fee will be added to your bid"
+                    description=""
+                    actions={
+                      <IconButton
+                        size="medium"
+                        icon={<FeatherX />}
+                        onClick={handleDismissAlert} // Handle alert dismissal
+                      />
+                    }
+                  />
+                )}
               </div>
               <div className="flex w-full flex-col items-start gap-4">
                 <div className="flex w-full items-center gap-2">
@@ -106,13 +144,15 @@ function PlaceBid({ open, onClose, bid, mode }: PlaceBidProps) {
                     Total with fee
                   </span>
                   <span className="text-heading-3 font-heading-3 text-default-font">
-                    2.56 ETH
+                    {bidAmount
+                      ? `${(parseFloat(bidAmount) * 1.025).toFixed(2)} ETH`
+                      : "0.00 ETH"}
                   </span>
                 </div>
                 <Button
                   className="h-10 w-full flex-none"
                   size="large"
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                  onClick={handleConfirmBid} // Handle bid confirmation
                 >
                   Confirm Bid
                 </Button>
